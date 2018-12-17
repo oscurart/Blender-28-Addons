@@ -1,3 +1,17 @@
+bl_info = {
+    "name": "Bake PBR",
+    "author": "Eugenio Pignataro (Oscurart)",
+    "version": (1, 0),
+    "blender": (2, 80, 0),
+    "location": "Render > Bake PBR",
+    "description": "Bake PBR maps",
+    "warning": "",
+    "wiki_url": "",
+    "category": "Render",
+}
+
+
+
 import bpy
 import os
 
@@ -372,6 +386,20 @@ class LayoutDemoPanel(bpy.types.Panel):
 
 #__________________________________________________________________________________
 
-bpy.types.Scene.bake_pbr_channels = bpy.props.PointerProperty(type=bakeChannels)
-bpy.utils.register_class(LayoutDemoPanel)    
-bpy.utils.register_class(BakePbr)    
+
+def register():
+    bpy.types.Scene.bake_pbr_channels = bpy.props.PointerProperty(type=bakeChannels)
+    bpy.utils.register_class(LayoutDemoPanel)  
+    bpy.utils.register_class(BakePbr)  
+
+
+
+def unregister():
+    bpy.utils.unregister_class(LayoutDemoPanel)  
+    bpy.utils.unregister_class(BakePbr)      
+    bpy.utils.unregister_class(OBJECT_OT_add_object)
+
+
+
+if __name__ == "__main__":
+    register()
