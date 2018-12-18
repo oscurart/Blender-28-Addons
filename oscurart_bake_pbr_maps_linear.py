@@ -328,16 +328,16 @@ class BakePbr (bpy.types.Operator):
 
 
 class bakeChannels(bpy.types.PropertyGroup):
-    metallic = bpy.props.BoolProperty(name="Metallic",default=False)
-    occlusion = bpy.props.BoolProperty(name="Occlusion",default=False)
-    normal = bpy.props.BoolProperty(name="Normal",default=False)
-    emit = bpy.props.BoolProperty(name="Emit",default=False)
-    roughness = bpy.props.BoolProperty(name="Roughness",default=False)
-    opacity = bpy.props.BoolProperty(name="Opacity",default=False)
-    albedo = bpy.props.BoolProperty(name="Albedo",default=False)
-    sizex = bpy.props.IntProperty(name="Size x", default= 1024)
-    sizey = bpy.props.IntProperty(name="Size y", default= 1024)
-    seltoact = bpy.props.BoolProperty(name="Selected to active", default= True)
+    metallic : bpy.props.BoolProperty(name="Metallic",default=False)
+    occlusion : bpy.props.BoolProperty(name="Occlusion",default=False)
+    normal : bpy.props.BoolProperty(name="Normal",default=False)
+    emit : bpy.props.BoolProperty(name="Emit",default=False)
+    roughness : bpy.props.BoolProperty(name="Roughness",default=False)
+    opacity : bpy.props.BoolProperty(name="Opacity",default=False)
+    albedo : bpy.props.BoolProperty(name="Albedo",default=False)
+    sizex : bpy.props.IntProperty(name="Size x", default= 1024)
+    sizey : bpy.props.IntProperty(name="Size y", default= 1024)
+    seltoact : bpy.props.BoolProperty(name="Selected to active", default= True)
 
 bpy.utils.register_class(bakeChannels)
 

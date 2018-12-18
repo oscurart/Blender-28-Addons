@@ -110,12 +110,12 @@ class PasteUvIsland(Operator):
     bl_label = "Paste Uv Island"
     bl_options = {"REGISTER", "UNDO"}
 
-    uvOffset = BoolProperty(
+    uvOffset : BoolProperty(
             name="Uv Offset",
             default=False
             )
 
-    rotateUv = BoolProperty(
+    rotateUv : BoolProperty(
             name="Rotate Uv Corner",
             default=False
             )

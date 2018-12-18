@@ -83,11 +83,11 @@ class OscOverlapUv(Operator):
                 context.active_object.type == 'MESH')
 
 
-    offset = BoolProperty(
+    offset : BoolProperty(
             default=True,
             name="Offset"
             )
-    rotate = BoolProperty(
+    rotate : BoolProperty(
             default=False,
             name="Rotate"
             )

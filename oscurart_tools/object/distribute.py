@@ -54,9 +54,9 @@ class DistributeOsc(Operator):
     """Distribute evenly the selected objects in x y z"""
     bl_idname = "object.distribute_osc"
     bl_label = "Distribute Objects"
-    Boolx = BoolProperty(name="X")
-    Booly = BoolProperty(name="Y")
-    Boolz = BoolProperty(name="Z")
+    Boolx : BoolProperty(name="X")
+    Booly : BoolProperty(name="Y")
+    Boolz : BoolProperty(name="Z")
 
     def execute(self, context):
         ObjectDistributeOscurart(self, self.Boolx, self.Booly, self.Boolz)

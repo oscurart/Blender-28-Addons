@@ -32,10 +32,10 @@ class SearchAndSelectOt(bpy.types.Operator):
     bl_label = "Search And Select"
     bl_options = {"REGISTER", "UNDO"}
 
-    keyword = StringProperty(name="Keyword", default="Type Here")
-    start = BoolProperty(name="Start With", default=True)
-    count = BoolProperty(name="Contain", default=True)
-    end = BoolProperty(name="End", default=True)
+    keyword : StringProperty(name="Keyword", default="Type Here")
+    start : BoolProperty(name="Start With", default=True)
+    count : BoolProperty(name="Contain", default=True)
+    end : BoolProperty(name="End", default=True)
 
     def execute(self, context):
         for objeto in bpy.context.scene.objects:
