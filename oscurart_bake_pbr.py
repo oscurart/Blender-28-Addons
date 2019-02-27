@@ -140,7 +140,7 @@ def createTempMats():
                     #apago emisores
                     for node in channelMat.node_tree.nodes:
                         if node.type == "EMISSION":
-                            node.inputs[0].default_value = (0,0,0,0)
+                            node.inputs[1].default_value = 0    
                     
                     #conecta los valores a los mix
                     for prin in principleds:
@@ -220,7 +220,7 @@ def bake(map):
     bpy.data.images.remove(img)
     print ("%s Done!" % (map))
     
-    #restauraSlots(selObject)
+    restauraSlots(selObject)
 
     
 #__________________________________________________________________________________
