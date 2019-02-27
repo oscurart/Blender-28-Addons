@@ -236,7 +236,7 @@ def executePbr():
         if getattr(bpy.context.scene.bake_pbr_channels,map):
             bake(map)  
 
-"""
+
     #remuevo materiales copia
     for ma in bpy.data.materials:
         if ma.users == 0:
@@ -246,7 +246,7 @@ def executePbr():
     if selected_to_active:
         bpy.data.objects.remove(selObject, do_unlink=True, do_id_user=True, do_ui_user=True)
   
-"""    
+  
     
 class BakePbr (bpy.types.Operator):
     """Bake PBR materials"""
