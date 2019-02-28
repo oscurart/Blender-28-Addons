@@ -357,7 +357,7 @@ def loadPBRMaps():
             if input == "Normal":
                 normalShader = mat.node_tree.nodes.new("ShaderNodeNormalMap") 
                 mat.node_tree.links.new(normalShader.outputs[0],activePrincipled.inputs["Normal"]) 
-                mat.node_tree.links.new(imgNode.outputs[0],normalShader.inputs[0])   
+                mat.node_tree.links.new(imgNode.outputs[0],normalShader.inputs[1])   
                 normalShader.location[0] =  activePrincipled.location[0]                      
                 normalShader.location[1] =  activePrincipled.location[1] - 600   
                 imgNode.location[0] = activePrincipled.location[0]  
