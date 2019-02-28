@@ -40,35 +40,13 @@ def setSceneOpts():
         "Metallic":[False],              
         "Roughness":[False], 
         "Specular":[False], 
+        "Subsurface":[False],        
         "Subsurface_Color":[True],
         "Transmission":[False],    
+        "IOR":[False],          
         "Emission":[True],                  
         "Normal":[True]                     
         }   
-    """    
-    channelsDict ={
-        "Anisotropic":[False,False],
-        "Anisotropic Rotation":[False,False],
-        "Base Color":[True,True],
-        "Clearcoat":[False,False],
-        "Clearcoat Normal":[False,True],
-        "Clearcoat Roughness":[False,False],
-        "IOR":[False,False],
-        "Metallic":[True,False],
-        "Normal":[False,True],
-        "Roughness":[True,False],
-        "Sheen":[False,False],
-        "Sheen Tint":[False,False],
-        "Specular":[False,False],
-        "Specular Tint":[False,False],
-        "Subsurface":[False,False],
-        "Subsurface Color":[False,True],
-        "Subsurface Radius":[False,True],
-        "Tangent":[False,True],
-        "Transmission":[False,False],
-        "Transmission Roughness":[False,False]
-        }        
-     """   
 
     bpy.context.scene.render.image_settings.file_format = "OPEN_EXR"
     bpy.context.scene.render.image_settings.color_mode = "RGBA"
@@ -271,8 +249,10 @@ class bakeChannels(bpy.types.PropertyGroup):
     Metallic : bpy.props.BoolProperty(name="Metallic",default=False)    
     Roughness : bpy.props.BoolProperty(name="Roughness",default=False)
     Specular : bpy.props.BoolProperty(name="Specular",default=False)   
+    Subsurface : bpy.props.BoolProperty(name="Subsurface",default=False)  
     Subsurface_Color :  bpy.props.BoolProperty(name="Subsurface Color",default=False) 
     Transmission :  bpy.props.BoolProperty(name="Transmission",default=False)  
+    IOR :  bpy.props.BoolProperty(name="IOR",default=False)      
     Emission:  bpy.props.BoolProperty(name="Emission",default=False)          
     Normal :  bpy.props.BoolProperty(name="Normal",default=False)        
     """
@@ -316,29 +296,17 @@ class LayoutDemoPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "Specular")    
         row = layout.row()
+        row.prop(scene.bake_pbr_channels, "Subsurface")          
+        row = layout.row()
         row.prop(scene.bake_pbr_channels, "Subsurface_Color")    
         row = layout.row()
-        row.prop(scene.bake_pbr_channels, "Transmission")         
+        row.prop(scene.bake_pbr_channels, "Transmission")   
+        row = layout.row()
+        row.prop(scene.bake_pbr_channels, "IOR")                
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "Emission")                   
         row = layout.row()
-        row.prop(scene.bake_pbr_channels, "Normal")                                 
-        """
-        row = layout.row()
-        row.prop(scene.bake_pbr_channels, "metallic")
-        row = layout.row()
-        row.prop(scene.bake_pbr_channels, "occlusion")
-        row = layout.row()
-        row.prop(scene.bake_pbr_channels, "normal")
-        row = layout.row()
-        row.prop(scene.bake_pbr_channels, "emit")
-        row = layout.row()
-        row.prop(scene.bake_pbr_channels, "roughness")
-        row = layout.row()
-        row.prop(scene.bake_pbr_channels, "opacity")
-        row = layout.row()
-        row.prop(scene.bake_pbr_channels, "albedo")
-        """        
+        row.prop(scene.bake_pbr_channels, "Normal")                                        
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "sizex")    
         row.prop(scene.bake_pbr_channels, "sizey")   
@@ -351,13 +319,78 @@ class LayoutDemoPanel(bpy.types.Panel):
 
 
 
-#__________________________________________________________________________________
+#___________________ CARGA MATS
+
+
+
+def loadPBRMaps():
+    mat = bpy.context.object.material_slots[0].material
+    activePrincipled = mat.node_tree.nodes.active
+    imgpath = "%s/IMAGES" % (os.path.dirname(bpy.data.filepath))
+    loc = activePrincipled.location[1]
+    locx = activePrincipled.location[0] - 500 
+    principledInputs =  [input.name for input  in activePrincipled.inputs]
+    principledInputs.append("Emission")
+
+    for input in principledInputs:
+        if os.path.exists("%s/%s_%s.exr" % (imgpath,mat.name,input.replace(" ",""))):      
+            print("Channel %s connected" % (input.replace(" ","")))  
+            img = bpy.data.images.load("%s/%s_%s.exr" % (imgpath,mat.name,input.replace(" ","")))        
+            imgNode = mat.node_tree.nodes.new("ShaderNodeTexImage")
+            imgNode.image = img
+            
+            if input == "Emission":
+                addShader = mat.node_tree.nodes.new("ShaderNodeAddShader")
+                emissionShader = mat.node_tree.nodes.new("ShaderNodeEmission")
+                addShader.location[0] = activePrincipled.location[0] + 400
+                addShader.location[1] = activePrincipled.location[1]
+                emissionShader.location[0] = activePrincipled.location[0] +350
+                emissionShader.location[1] = activePrincipled.location[1] -200    
+                imgNode.location[0] = activePrincipled.location[0] +300     
+                imgNode.location[1] = activePrincipled.location[1] -400
+                prinOutputSocket = mat.node_tree.nodes['Principled BSDF'].outputs['BSDF'].links[0].to_socket
+                mat.node_tree.links.new(addShader.outputs[0],prinOutputSocket)
+                mat.node_tree.links.new(activePrincipled.outputs[0],addShader.inputs[0])
+                mat.node_tree.links.new(emissionShader.outputs[0],addShader.inputs[1])  
+                mat.node_tree.links.new(imgNode.outputs[0],emissionShader.inputs[0])   
+                
+            if input == "Normal":
+                normalShader = mat.node_tree.nodes.new("ShaderNodeNormalMap") 
+                mat.node_tree.links.new(normalShader.outputs[0],activePrincipled.inputs["Normal"]) 
+                mat.node_tree.links.new(imgNode.outputs[0],normalShader.inputs[0])   
+                normalShader.location[0] =  activePrincipled.location[0]                      
+                normalShader.location[1] =  activePrincipled.location[1] - 600   
+                imgNode.location[0] = activePrincipled.location[0]  
+                imgNode.location[1] = activePrincipled.location[1] - 900                                                        
+                                             
+            if input not in ["Emission","Normal"]:     
+                mat.node_tree.links.new(imgNode.outputs[0],activePrincipled.inputs[input])
+                imgNode.location[1] += loc
+                imgNode.location[0] = locx        
+                loc -= 300       
+
+
+class loadPbrMaps (bpy.types.Operator):
+    """Load bakePBR maps"""
+    bl_idname = "material.load_pbr_maps"
+    bl_label = "Load PBR Maps"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        loadPBRMaps()
+        return {'FINISHED'}  
+
+#---------------------------------------------------------------------------------
 
 
 def register():
     bpy.types.Scene.bake_pbr_channels = bpy.props.PointerProperty(type=bakeChannels)
     bpy.utils.register_class(LayoutDemoPanel)  
     bpy.utils.register_class(BakePbr)  
+    bpy.utils.register_class(loadPbrMaps)
 
 
 
@@ -365,7 +398,7 @@ def unregister():
     bpy.utils.unregister_class(LayoutDemoPanel)  
     bpy.utils.unregister_class(BakePbr)      
     bpy.utils.unregister_class(OBJECT_OT_add_object)
-
+    bpy.utils.unregister_class(loadPbrMaps)
 
 
 if __name__ == "__main__":
