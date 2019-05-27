@@ -179,7 +179,7 @@ def bake(map):
             node = activeMat.node_tree.nodes.new("ShaderNodeTexImage")
             node.image = img
             activeMat.node_tree.nodes.active = node
-            node.color_space = "NONE"
+            node.image.colorspace_settings.name = "Non-Colour Data"
             node.select = True
     else:
         activeMat = object.active_material               
@@ -187,7 +187,7 @@ def bake(map):
         node = activeMat.node_tree.nodes.new("ShaderNodeTexImage")
         node.image = img
         activeMat.node_tree.nodes.active = node
-        node.color_space = "NONE"
+        node.image.colorspace_settings.name = "Non-Colour Data"
         node.select = True 
   
     if map not in ["Normal"]:
