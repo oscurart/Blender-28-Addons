@@ -15,6 +15,7 @@ import os
 from bpy_extras.io_utils import ImportHelper
 import struct
 from bpy.app.handlers import persistent
+from mathutils import Matrix
 
 class VIEW3D_PT_tools_looptools(bpy.types.Panel):
     """Crea Panel"""
@@ -236,10 +237,15 @@ class OscurartMeshCacheSceneAutoLoad(bpy.types.PropertyGroup):
 
 @persistent
 def CargaAutoLoadPC(dummy):
+    zeroMat = Matrix(((1.0, 0.0, 0.0, 0.0),
+            (0.0, 1.0, 0.0, 0.0),
+            (0.0, 0.0, 1.0, 0.0),
+            (0.0, 0.0, 0.0, 1.0)))    
     for col in bpy.context.scene.pc_auto_load_proxy:
         folderpath = bpy.context.scene.pc_pc2_folder
         if col.use_auto_load:
             for ob in bpy.data.collections[col.name].all_objects:
+                ob.matrix_world = zeroMat
                 for mod in ob.modifiers:
                     if mod.type == "MESH_CACHE":
                         mod.cache_format = "PC2"
@@ -247,7 +253,7 @@ def CargaAutoLoadPC(dummy):
                         mod.up_axis = "POS_Z"
                         mod.flip_axis = set(())
                         mod.frame_start = bpy.context.scene.frame_start
-                        mod.filepath = "%s/%s_%s.pc2" % (bpy.path.abspath(folderpath), bpy.context.object.instance_collection.name,ob.name)
+                        mod.filepath = "%s/%s_%s.pc2" % (bpy.path.abspath(folderpath),col.name,ob.name)
 
 
 bpy.app.handlers.load_post.append(CargaAutoLoadPC)
