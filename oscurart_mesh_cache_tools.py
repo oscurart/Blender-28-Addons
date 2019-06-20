@@ -49,6 +49,8 @@ class VIEW3D_PT_tools_looptools(bpy.types.Panel):
         row.prop(scene, "pc_pc2_removeGen", text="Remove Generate Modifiers")
         row = layout.row() 
         row.prop(scene, "pc_pc2_world_space", text="World Space")
+        row = layout.row() 
+        row.prop(scene, "pc_pc2_apply_collection_matrix", text="Apply Collection Matrix")        
         row = layout.row()
         row.scale_y = 3.0
         row.operator("export_shape.pc2_selection", text="BAKE")
@@ -141,9 +143,13 @@ def OscFuncExportPc2(self,context):
                         if bpy.context.scene.pc_pc2_world_space:
                             me.transform(obmat)
                             me.calc_normals()
+                            
+                        if bpy.context.scene.pc_pc2_apply_collection_matrix:
+                            me.transform(bpy.context.active_object.matrix_world)
+                                                        
                         # create archive
                         for vert in me.vertices[:]:
-                            file.write(struct.pack("<3f", *vert.co))
+                            file.write(struct.pack("<3f", *vert.co))           
 
                 if bpy.context.scene.pc_pc2_removeGen:
                     OscRemoveGenModifiers(ob,True) #remuevo modificadores
@@ -276,6 +282,7 @@ def register():
     Scene.pc_pc2_folder = bpy.props.StringProperty(default="Set me Please!")    
     Scene.pc_pc2_exclude = bpy.props.StringProperty(default="*")
     Scene.pc_pc2_world_space = bpy.props.BoolProperty(default=True, name="World Space")
+    Scene.pc_pc2_apply_collection_matrix = bpy.props.BoolProperty(default=True, name="Collection Matrix")
     Scene.pc_pc2_removeGen = bpy.props.BoolProperty(default=True, name="FreezeGenModifiers")
     bpy.utils.register_class(OscurartMeshCacheSceneAutoLoad)
     Scene.pc_auto_load_proxy = bpy.props.CollectionProperty(
