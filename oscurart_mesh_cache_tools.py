@@ -239,7 +239,19 @@ class OscurartMeshCacheSceneAutoLoad(bpy.types.PropertyGroup):
             name="Bool",
             default=False
             )
-            
+
+
+def offDeformMods(ob):
+    deformList=['ARMATURE', 'CAST', 'CURVE', 'DISPLACE',
+         'HOOK', 'LAPLACIANDEFORM', 'LATTICE',
+         'MESH_DEFORM', 'SHRINKWRAP', 'SIMPLE_DEFORM',
+         'SMOOTH', 'CORRECTIVE_SMOOTH', 'LAPLACIANSMOOTH',
+         'SURFACE_DEFORM', 'WARP', 'WAVE']   
+          
+    for mod in ob.modifiers:
+        if mod.type in deformList:
+            mod.show_render = False
+            mod.show_viewport = False            
 
 @persistent
 def CargaAutoLoadPC(dummy):
@@ -251,6 +263,7 @@ def CargaAutoLoadPC(dummy):
         folderpath = bpy.context.scene.pc_pc2_folder
         if col.use_auto_load:
             for ob in bpy.data.collections[col.name].all_objects:
+                offDeformMods(ob) #apago modifiers deformadores
                 ob.matrix_world = zeroMat
                 for mod in ob.modifiers:
                     if mod.type == "MESH_CACHE":
