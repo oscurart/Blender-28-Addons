@@ -242,7 +242,7 @@ class OscurartMeshCacheSceneAutoLoad(bpy.types.PropertyGroup):
 
 
 def offDeformMods(ob):
-    deformList=['ARMATURE', 'CAST', 'CURVE', 'DISPLACE',
+    deformList=['ARMATURE', 'CAST', 'CURVE',
          'HOOK', 'LAPLACIANDEFORM', 'LATTICE',
          'MESH_DEFORM', 'SHRINKWRAP', 'SIMPLE_DEFORM',
          'SMOOTH', 'CORRECTIVE_SMOOTH', 'LAPLACIANSMOOTH',
