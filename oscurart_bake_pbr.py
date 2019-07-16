@@ -156,6 +156,9 @@ def restauraSlots(selObject):
 #__________________________________________________________________________________   
     
 def bake(map):   
+    #paso a cycles
+    bpy.context.scene.render.engine = "CYCLES"
+    
     #crea imagen
     imgpath = "%s/IMAGES" % (os.path.dirname(bpy.data.filepath))
     img = bpy.data.images.new(map,  width=sizex, height=sizey, alpha=True,float_buffer=True)
@@ -181,6 +184,7 @@ def bake(map):
             activeMat.node_tree.nodes.active = node
             #node.image.colorspace_settings.name = "Non-Colour Data"
             node.select = True
+            node.name = "BakePBRTemp"
     else:
         activeMat = object.active_material               
         # seteo el nodo
@@ -189,6 +193,7 @@ def bake(map):
         activeMat.node_tree.nodes.active = node
         #node.image.colorspace_settings.name = "Non-Colour Data"
         node.select = True 
+        node.name = "BakePBRTemp"
   
     if map not in ["Normal"]:
         bpy.ops.object.bake(type="EMIT")
@@ -197,6 +202,10 @@ def bake(map):
     img.save_render(img.filepath)
     bpy.data.images.remove(img)
     print ("%s Done!" % (map))
+    
+    for node in activeMat.node_tree.nodes:
+        if node.name.count("BakePBRTemp"):
+            activeMat.node_tree.nodes.remove(node)
     
     restauraSlots(selObject)
 
