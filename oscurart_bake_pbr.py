@@ -347,21 +347,7 @@ def loadPBRMaps():
             img = bpy.data.images.load("%s/%s_%s.exr" % (imgpath,mat.name,input.replace(" ","")))        
             imgNode = mat.node_tree.nodes.new("ShaderNodeTexImage")
             imgNode.image = img
-            
-            if input == "Emission":
-                addShader = mat.node_tree.nodes.new("ShaderNodeAddShader")
-                emissionShader = mat.node_tree.nodes.new("ShaderNodeEmission")
-                addShader.location[0] = activePrincipled.location[0] + 400
-                addShader.location[1] = activePrincipled.location[1]
-                emissionShader.location[0] = activePrincipled.location[0] +350
-                emissionShader.location[1] = activePrincipled.location[1] -200    
-                imgNode.location[0] = activePrincipled.location[0] +300     
-                imgNode.location[1] = activePrincipled.location[1] -400
-                prinOutputSocket = mat.node_tree.nodes['Principled BSDF'].outputs['BSDF'].links[0].to_socket
-                mat.node_tree.links.new(addShader.outputs[0],prinOutputSocket)
-                mat.node_tree.links.new(activePrincipled.outputs[0],addShader.inputs[0])
-                mat.node_tree.links.new(emissionShader.outputs[0],addShader.inputs[1])  
-                mat.node_tree.links.new(imgNode.outputs[0],emissionShader.inputs[0])   
+
                 
             if input == "Normal":
                 normalShader = mat.node_tree.nodes.new("ShaderNodeNormalMap") 
@@ -372,7 +358,7 @@ def loadPBRMaps():
                 imgNode.location[0] = activePrincipled.location[0]  
                 imgNode.location[1] = activePrincipled.location[1] - 900                                                        
                                              
-            if input not in ["Emission","Normal"]:     
+            if input not in ["Normal"]:     
                 mat.node_tree.links.new(imgNode.outputs[0],activePrincipled.inputs[input])
                 imgNode.location[1] += loc
                 imgNode.location[0] = locx        
