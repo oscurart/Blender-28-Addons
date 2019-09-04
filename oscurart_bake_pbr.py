@@ -213,6 +213,10 @@ def bake(map):
 #__________________________________________________________________________________
 
 def executePbr():
+    
+    engine = bpy.context.scene.render.engine
+    bpy.context.scene.render.engine = "CYCLES"
+     
     #bakeo
     folderCheck()
     setSceneOpts() 
@@ -233,7 +237,7 @@ def executePbr():
     if selected_to_active:
         bpy.data.objects.remove(selObject, do_unlink=True, do_id_user=True, do_ui_user=True)
   
-  
+    bpy.context.scene.render.engine = engine
     
 class BakePbr (bpy.types.Operator):
     """Bake PBR materials"""
@@ -280,13 +284,18 @@ class bakeChannels(bpy.types.PropertyGroup):
 bpy.utils.register_class(bakeChannels)
 
 
-class LayoutDemoPanel(bpy.types.Panel):
+class OSCPBR_PT_LayoutDemoPanel(bpy.types.Panel):
     """Creates a Panel in the scene context of the properties editor"""
     bl_label = "Bake PBR"
     bl_idname = "RENDER_PT_layout"
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "render"
+    """
+    @classmethod
+    def poll(cls, context):
+        return bpy.context.scene.render.engine == "CYCLES"
+    """
 
     def draw(self, context):
         layout = self.layout
@@ -383,14 +392,14 @@ class loadPbrMaps (bpy.types.Operator):
 
 def register():
     bpy.types.Scene.bake_pbr_channels = bpy.props.PointerProperty(type=bakeChannels)
-    bpy.utils.register_class(LayoutDemoPanel)  
+    bpy.utils.register_class(OSCPBR_PT_LayoutDemoPanel)  
     bpy.utils.register_class(BakePbr)  
     bpy.utils.register_class(loadPbrMaps)
 
 
 
 def unregister():
-    bpy.utils.unregister_class(LayoutDemoPanel)  
+    bpy.utils.unregister_class(OSCPBR_PT_LayoutDemoPanel)  
     bpy.utils.unregister_class(BakePbr)      
     bpy.utils.unregister_class(OBJECT_OT_add_object)
     bpy.utils.unregister_class(loadPbrMaps)
