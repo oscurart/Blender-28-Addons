@@ -14,6 +14,7 @@ bl_info = {
 
 import bpy
 import os
+from datetime import datetime 
 
 def folderCheck():
     fp = bpy.path.abspath(bpy.data.filepath)
@@ -156,6 +157,9 @@ def restauraSlots(selObject):
 #__________________________________________________________________________________   
     
 def bake(map):   
+    #time
+    start_time = datetime.now() 
+        
     #paso a cycles
     bpy.context.scene.render.engine = "CYCLES"
     
@@ -208,6 +212,10 @@ def bake(map):
             activeMat.node_tree.nodes.remove(node)
     
     restauraSlots(selObject)
+    
+    #fin tiempo
+    time_elapsed = datetime.now() - start_time 
+    print('Time elapsed (hh:mm:ss.ms) {}'.format(time_elapsed))    
 
     
 #__________________________________________________________________________________
@@ -215,7 +223,6 @@ def bake(map):
 def executePbr():
     
     engine = bpy.context.scene.render.engine
-    bpy.context.scene.render.engine = "CYCLES"
      
     #bakeo
     folderCheck()
