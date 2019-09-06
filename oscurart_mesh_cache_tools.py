@@ -115,49 +115,50 @@ def OscFuncExportPc2(self,context):
     folderpath = bpy.context.scene.pc_pc2_folder
     framerange = end - start
     #depsgraph = None
-
-    for ob in bpy.context.object.instance_collection.all_objects[:]:
-        if any(token not in ob.name for token in bpy.context.scene.pc_pc2_exclude.split(",")):
-            bpy.context.window_manager.progress_begin(0, 100)  # progressbar
-            if ob.type == "MESH":
-                
-                if bpy.context.scene.pc_pc2_removeGen:
-                    OscRemoveGenModifiers(ob,False) #remuevo modificadores
+    
+    for collOb in bpy.context.selected_objects:
+        for ob in collOb.instance_collection.all_objects[:]:
+            if any(token not in ob.name for token in bpy.context.scene.pc_pc2_exclude.split(",")):
+                bpy.context.window_manager.progress_begin(0, 100)  # progressbar
+                if ob.type == "MESH":
                     
-                with open("%s/%s_%s.pc2" % (bpy.path.abspath(folderpath), bpy.context.object.instance_collection.name,ob.name), mode="wb") as file:
-                    # header
-                    headerFormat = '<12siiffi'
-                    headerStr = struct.pack(headerFormat,
-                             b'POINTCACHE2\0', 1, len(ob.data.vertices[:]), 0, 1.0, (end + 1) - start)
-                    file.write(headerStr)
-                    # bake
-                    obmat = ob.matrix_world
-                    for i, frame in enumerate(range(start, end + 1)):
-                        print("Percentage of %s bake: %s " % (ob.name, i * 100 / framerange))
-                        bpy.context.window_manager.progress_update(i * 100 / framerange)  # progressbarUpdate
-                        bpy.context.scene.frame_set(frame)
-                        depsgraph = context.evaluated_depsgraph_get()
-                        me = ob.evaluated_get(depsgraph).to_mesh()                        
+                    if bpy.context.scene.pc_pc2_removeGen:
+                        OscRemoveGenModifiers(ob,False) #remuevo modificadores
                         
-                        # rotate
-                        if bpy.context.scene.pc_pc2_world_space:
-                            me.transform(obmat)
-                            me.calc_normals()
+                    with open("%s/%s_%s.pc2" % (bpy.path.abspath(folderpath), collOb.instance_collection.name,ob.name), mode="wb") as file:
+                        # header
+                        headerFormat = '<12siiffi'
+                        headerStr = struct.pack(headerFormat,
+                                 b'POINTCACHE2\0', 1, len(ob.data.vertices[:]), 0, 1.0, (end + 1) - start)
+                        file.write(headerStr)
+                        # bake
+                        obmat = ob.matrix_world
+                        for i, frame in enumerate(range(start, end + 1)):
+                            print("Percentage of %s bake: %s " % (ob.name, i * 100 / framerange))
+                            bpy.context.window_manager.progress_update(i * 100 / framerange)  # progressbarUpdate
+                            bpy.context.scene.frame_set(frame)
+                            depsgraph = context.evaluated_depsgraph_get()
+                            me = ob.evaluated_get(depsgraph).to_mesh()                        
                             
-                        if bpy.context.scene.pc_pc2_apply_collection_matrix:
-                            me.transform(bpy.context.active_object.matrix_world)
-                                                        
-                        # create archive
-                        for vert in me.vertices[:]:
-                            file.write(struct.pack("<3f", *vert.co))           
+                            # rotate
+                            if bpy.context.scene.pc_pc2_world_space:
+                                me.transform(obmat)
+                                me.calc_normals()
+                                
+                            if bpy.context.scene.pc_pc2_apply_collection_matrix:
+                                me.transform(bpy.context.active_object.matrix_world)
+                                                            
+                            # create archive
+                            for vert in me.vertices[:]:
+                                file.write(struct.pack("<3f", *vert.co))           
 
-                if bpy.context.scene.pc_pc2_removeGen:
-                    OscRemoveGenModifiers(ob,True) #remuevo modificadores
+                    if bpy.context.scene.pc_pc2_removeGen:
+                        OscRemoveGenModifiers(ob,True) #remuevo modificadores
 
-                    print("%s Bake finished!" % (ob.name))
+                        print("%s Bake finished!" % (ob.name))
 
-            bpy.context.window_manager.progress_end()  # progressBarClose
-    print("Bake Totally Finished!")
+                bpy.context.window_manager.progress_end()  # progressBarClose
+        print("Bake Totally Finished!")
 
 
 class OscPc2ExporterBatch(bpy.types.Operator):
