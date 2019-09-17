@@ -43,6 +43,7 @@ def setSceneOpts():
         "Specular":[False], 
         "Subsurface":[False],        
         "Subsurface_Color":[True],
+        "Subsurface_Radius":[True],
         "Transmission":[False],    
         "IOR":[False],          
         "Emission":[True],                  
@@ -129,7 +130,10 @@ def createTempMats():
                             inputRGB = channelMat.node_tree.nodes.new("ShaderNodeRGB")
                             channelMat.node_tree.links.new(prin.outputs['BSDF'].links[0].to_socket,inputRGB.outputs[0])
                             if channelVector[0]: # si es float o un vector
-                                inputRGB.outputs[0].default_value = prin.inputs[channel.replace("_"," ")].default_value    
+                                if len(prin.inputs[channel.replace("_"," ")].default_value) == 4:#si es color o vector de 3 componentes
+                                    inputRGB.outputs[0].default_value = prin.inputs[channel.replace("_"," ")].default_value  
+                                else:
+                                    inputRGB.outputs[0].default_value = prin.inputs[channel.replace("_"," ")].default_value[:] + (1,)     
                             else:
                                 rgbValue = prin.inputs[channel].default_value
                                 inputRGB.outputs[0].default_value = (rgbValue,rgbValue,rgbValue,1)
@@ -271,6 +275,7 @@ class bakeChannels(bpy.types.PropertyGroup):
     Specular : bpy.props.BoolProperty(name="Specular",default=False)   
     Subsurface : bpy.props.BoolProperty(name="Subsurface",default=False)  
     Subsurface_Color :  bpy.props.BoolProperty(name="Subsurface Color",default=False) 
+    Subsurface_Radius :  bpy.props.BoolProperty(name="Subsurface Radius",default=False)
     Transmission :  bpy.props.BoolProperty(name="Transmission",default=False)  
     IOR :  bpy.props.BoolProperty(name="IOR",default=False)      
     Emission:  bpy.props.BoolProperty(name="Emission",default=False)          
@@ -325,6 +330,8 @@ class OSCPBR_PT_LayoutDemoPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "Subsurface_Color")    
         row = layout.row()
+        row.prop(scene.bake_pbr_channels, "Subsurface_Radius")    
+        row = layout.row()        
         row.prop(scene.bake_pbr_channels, "Transmission")   
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "IOR")                
