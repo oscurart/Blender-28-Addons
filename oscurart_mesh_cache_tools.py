@@ -17,14 +17,14 @@ import struct
 from bpy.app.handlers import persistent
 from mathutils import Matrix
 
-class VIEW3D_PT_tools_looptools(bpy.types.Panel):
+class VIEW3D_PT_tools_meshcachetools(bpy.types.Panel):
     """Crea Panel"""
     bl_label = "MeshCacheTools"
     #bl_idname = "SCENE_PT_asd"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     #bl_context = "object_mode"
-    bl_category = 'View'
+    bl_category = 'Tool'
     bl_options = {'DEFAULT_CLOSED'}
     
     def draw(self, context):
@@ -232,11 +232,11 @@ class RemuevePropiedades(bpy.types.Operator):
 
 
 class OscurartMeshCacheSceneAutoLoad(bpy.types.PropertyGroup):
-    name = bpy.props.StringProperty(
+    name : bpy.props.StringProperty(
             name="GroupName",
             default=""
             )
-    use_auto_load = bpy.props.BoolProperty(
+    use_auto_load : bpy.props.BoolProperty(
             name="Bool",
             default=False
             )
@@ -281,7 +281,7 @@ bpy.app.handlers.load_post.append(CargaAutoLoadPC)
 # REGISTER ----------------------------
 
 classes = (OscMeshCacheButtonSet,
-    VIEW3D_PT_tools_looptools,
+    VIEW3D_PT_tools_meshcachetools,
     OscPc2ExporterBatch,
     OscMeshCacheUp,
     CreaPropiedades,
