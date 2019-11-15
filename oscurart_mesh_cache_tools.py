@@ -183,7 +183,8 @@ def do_export(context, props):
 
                 file.flush()
                 file.close()
-                return True
+                print("-- %s Finished" % (ob.name))        
+    return True
 
 
 class OscPc2ExporterBatch(bpy.types.Operator):
