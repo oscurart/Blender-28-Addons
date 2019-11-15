@@ -183,7 +183,7 @@ def do_export(context, props):
 
                 file.flush()
                 file.close()
-                print("-- %s Finished" % (ob.name))        
+            print("-- %s Finished" % (ob.name))        
     return True
 
 
