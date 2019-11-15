@@ -16,6 +16,8 @@ from bpy_extras.io_utils import ImportHelper
 import struct
 from bpy.app.handlers import persistent
 from mathutils import Matrix
+import mathutils
+import math
 
 class VIEW3D_PT_tools_meshcachetools(bpy.types.Panel):
     """Crea Panel"""
@@ -46,7 +48,7 @@ class VIEW3D_PT_tools_meshcachetools(bpy.types.Panel):
         # Big render button
         #layout.label(text="Bake:")
         row = layout.row()        
-        row.prop(scene, "pc_pc2_removeGen", text="Remove Generate Modifiers")
+        row.prop(scene, "pc_pc2_applyMods", text="Apply Modifiers")
         row = layout.row() 
         row.prop(scene, "pc_pc2_world_space", text="World Space")
         row = layout.row() 
@@ -108,57 +110,79 @@ def OscRemoveGenModifiers(ob,state):
             mod.show_render = state
             mod.show_viewport = state
 
-
-def OscFuncExportPc2(self,context):
-    start = bpy.context.scene.frame_start
-    end = bpy.context.scene.frame_end
+def get_sampled_frames(start, end, sampling):
+    return [math.modf(start + x * sampling) for x in range(int((end - start) / sampling) + 1)]            
+            
+def do_export(context, props):
     folderpath = bpy.context.scene.pc_pc2_folder
-    framerange = end - start
-    #depsgraph = None
-    
     for collOb in bpy.context.selected_objects:
-        for ob in collOb.instance_collection.all_objects[:]:
-            if any(token not in ob.name for token in bpy.context.scene.pc_pc2_exclude.split(",")):
-                bpy.context.window_manager.progress_begin(0, 100)  # progressbar
-                if ob.type == "MESH":
+        for ob in collOb.instance_collection.all_objects[:]:      
+            filepath= "%s/%s_%s.pc2" % (bpy.path.abspath(folderpath), collOb.instance_collection.name,ob.name)
+            mat_x90 = mathutils.Matrix.Rotation(-math.pi/2, 4, 'X')
+            sc = bpy.context.scene
+            start = sc.frame_start
+            end = sc.frame_end
+            sampling = float(1)
+            apply_modifiers = bpy.context.scene.pc_pc2_applyMods
+            depsgraph = None
+            if apply_modifiers:
+                depsgraph = bpy.context.evaluated_depsgraph_get()
+                me = ob.evaluated_get(depsgraph).to_mesh()
+            else:
+                me = ob.to_mesh()
+            vertCount = len(me.vertices)
+            sampletimes = get_sampled_frames(start, end, sampling)
+            sampleCount = len(sampletimes)
+
+            # Create the header
+            headerFormat = '<12siiffi'
+            headerStr = struct.pack(headerFormat, b'POINTCACHE2\0',
+                                    1, vertCount, start, sampling, sampleCount)
+
+            file = open(filepath, "wb")
+            file.write(headerStr)
+
+            for frame in sampletimes:
+                # stupid modf() gives decimal part first!
+                sc.frame_set(int(frame[1]), subframe=frame[0])
+                if apply_modifiers:
+                    me = ob.evaluated_get(depsgraph).to_mesh()
+                else:
+                    me = ob.to_mesh()
+
+                if len(me.vertices) != vertCount:
+                    bpy.data.meshes.remove(me, do_unlink=True)
+                    file.close()
+                    try:
+                        remove(filepath)
+                    except:
+                        empty = open(filepath, 'w')
+                        empty.write('DUMMIFILE - export failed\n')
+                        empty.close()
+                    print('Export failed. Vertexcount of Object is not constant')
+                    return False
+
+                if bpy.context.scene.pc_pc2_world_space:
+                    me.transform(ob.matrix_world)
                     
-                    if bpy.context.scene.pc_pc2_removeGen:
-                        OscRemoveGenModifiers(ob,False) #remuevo modificadores
-                        
-                    with open("%s/%s_%s.pc2" % (bpy.path.abspath(folderpath), collOb.instance_collection.name,ob.name), mode="wb") as file:
-                        # header
-                        headerFormat = '<12siiffi'
-                        headerStr = struct.pack(headerFormat,
-                                 b'POINTCACHE2\0', 1, len(ob.data.vertices[:]), 0, 1.0, (end + 1) - start)
-                        file.write(headerStr)
-                        # bake
-                        obmat = ob.matrix_world
-                        for i, frame in enumerate(range(start, end + 1)):
-                            print("Percentage of %s bake: %s " % (ob.name, i * 100 / framerange))
-                            bpy.context.window_manager.progress_update(i * 100 / framerange)  # progressbarUpdate
-                            bpy.context.scene.frame_set(frame)
-                            depsgraph = context.evaluated_depsgraph_get()
-                            me = ob.evaluated_get(depsgraph).to_mesh()                        
-                            
-                            # rotate
-                            if bpy.context.scene.pc_pc2_world_space:
-                                me.transform(obmat)
-                                me.calc_normals()
-                                
-                            if bpy.context.scene.pc_pc2_apply_collection_matrix:
-                                me.transform(bpy.context.active_object.matrix_world)
-                                                            
-                            # create archive
-                            for vert in me.vertices[:]:
-                                file.write(struct.pack("<3f", *vert.co))           
+                if bpy.context.scene.pc_pc2_apply_collection_matrix:
+                    me.transform(bpy.context.active_object.matrix_world)                  
 
-                    if bpy.context.scene.pc_pc2_removeGen:
-                        OscRemoveGenModifiers(ob,True) #remuevo modificadores
 
-                        print("%s Bake finished!" % (ob.name))
+                for v in me.vertices:
+                    thisVertex = struct.pack('<fff', float(v.co[0]),
+                                             float(v.co[1]),
+                                             float(v.co[2]))
+                    file.write(thisVertex)
 
-                bpy.context.window_manager.progress_end()  # progressBarClose
-        print("Bake Totally Finished!")
+            if apply_modifiers:
+                ob.evaluated_get(depsgraph).to_mesh_clear()
+            else:
+                me = ob.to_mesh_clear()
+
+            file.flush()
+            file.close()
+            return True
 
 
 class OscPc2ExporterBatch(bpy.types.Operator):
@@ -167,12 +191,14 @@ class OscPc2ExporterBatch(bpy.types.Operator):
     bl_description = "Export pc2 for selected Objects"
     bl_options = {'REGISTER', 'UNDO'}
     
+
     @classmethod
     def poll(cls, context):
         return(bpy.context.object.instance_collection != None)
 
+
     def execute(self, context):
-        OscFuncExportPc2(self, context)
+        do_export(self, context)
         return {'FINISHED'}
 
 
@@ -297,7 +323,7 @@ def register():
     Scene.pc_pc2_exclude = bpy.props.StringProperty(default="*")
     Scene.pc_pc2_world_space = bpy.props.BoolProperty(default=True, name="World Space")
     Scene.pc_pc2_apply_collection_matrix = bpy.props.BoolProperty(default=True, name="Collection Matrix")
-    Scene.pc_pc2_removeGen = bpy.props.BoolProperty(default=True, name="FreezeGenModifiers")
+    Scene.pc_pc2_applyMods = bpy.props.BoolProperty(default=True, name="FreezeGenModifiers")
     bpy.utils.register_class(OscurartMeshCacheSceneAutoLoad)
     Scene.pc_auto_load_proxy = bpy.props.CollectionProperty(
                                             type=OscurartMeshCacheSceneAutoLoad
