@@ -116,73 +116,74 @@ def get_sampled_frames(start, end, sampling):
 def do_export(context, props):
     folderpath = bpy.context.scene.pc_pc2_folder
     for collOb in bpy.context.selected_objects:
-        for ob in collOb.instance_collection.all_objects[:]:      
-            filepath= "%s/%s_%s.pc2" % (bpy.path.abspath(folderpath), collOb.instance_collection.name,ob.name)
-            mat_x90 = mathutils.Matrix.Rotation(-math.pi/2, 4, 'X')
-            sc = bpy.context.scene
-            start = sc.frame_start
-            end = sc.frame_end
-            sampling = float(1)
-            apply_modifiers = bpy.context.scene.pc_pc2_applyMods
-            depsgraph = None
-            if apply_modifiers:
-                depsgraph = bpy.context.evaluated_depsgraph_get()
-                me = ob.evaluated_get(depsgraph).to_mesh()
-            else:
-                me = ob.to_mesh()
-            vertCount = len(me.vertices)
-            sampletimes = get_sampled_frames(start, end, sampling)
-            sampleCount = len(sampletimes)
-
-            # Create the header
-            headerFormat = '<12siiffi'
-            headerStr = struct.pack(headerFormat, b'POINTCACHE2\0',
-                                    1, vertCount, start, sampling, sampleCount)
-
-            file = open(filepath, "wb")
-            file.write(headerStr)
-
-            for frame in sampletimes:
-                # stupid modf() gives decimal part first!
-                sc.frame_set(int(frame[1]), subframe=frame[0])
+        for ob in collOb.instance_collection.all_objects[:]:     
+            if ob.type == "MESH": 
+                filepath= "%s/%s_%s.pc2" % (bpy.path.abspath(folderpath), collOb.instance_collection.name,ob.name)
+                mat_x90 = mathutils.Matrix.Rotation(-math.pi/2, 4, 'X')
+                sc = bpy.context.scene
+                start = sc.frame_start
+                end = sc.frame_end
+                sampling = float(1)
+                apply_modifiers = bpy.context.scene.pc_pc2_applyMods
+                depsgraph = None
                 if apply_modifiers:
+                    depsgraph = bpy.context.evaluated_depsgraph_get()
                     me = ob.evaluated_get(depsgraph).to_mesh()
                 else:
                     me = ob.to_mesh()
+                vertCount = len(me.vertices)
+                sampletimes = get_sampled_frames(start, end, sampling)
+                sampleCount = len(sampletimes)
 
-                if len(me.vertices) != vertCount:
-                    bpy.data.meshes.remove(me, do_unlink=True)
-                    file.close()
-                    try:
-                        remove(filepath)
-                    except:
-                        empty = open(filepath, 'w')
-                        empty.write('DUMMIFILE - export failed\n')
-                        empty.close()
-                    print('Export failed. Vertexcount of Object is not constant')
-                    return False
+                # Create the header
+                headerFormat = '<12siiffi'
+                headerStr = struct.pack(headerFormat, b'POINTCACHE2\0',
+                                        1, vertCount, start, sampling, sampleCount)
 
-                if bpy.context.scene.pc_pc2_world_space:
-                    me.transform(ob.matrix_world)
-                    
-                if bpy.context.scene.pc_pc2_apply_collection_matrix:
-                    me.transform(bpy.context.active_object.matrix_world)                  
+                file = open(filepath, "wb")
+                file.write(headerStr)
+
+                for frame in sampletimes:
+                    # stupid modf() gives decimal part first!
+                    sc.frame_set(int(frame[1]), subframe=frame[0])
+                    if apply_modifiers:
+                        me = ob.evaluated_get(depsgraph).to_mesh()
+                    else:
+                        me = ob.to_mesh()
+
+                    if len(me.vertices) != vertCount:
+                        bpy.data.meshes.remove(me, do_unlink=True)
+                        file.close()
+                        try:
+                            remove(filepath)
+                        except:
+                            empty = open(filepath, 'w')
+                            empty.write('DUMMIFILE - export failed\n')
+                            empty.close()
+                        print('Export failed. Vertexcount of Object is not constant')
+                        return False
+
+                    if bpy.context.scene.pc_pc2_world_space:
+                        me.transform(ob.matrix_world)
+                        
+                    if bpy.context.scene.pc_pc2_apply_collection_matrix:
+                        me.transform(bpy.context.active_object.matrix_world)                  
 
 
-                for v in me.vertices:
-                    thisVertex = struct.pack('<fff', float(v.co[0]),
-                                             float(v.co[1]),
-                                             float(v.co[2]))
-                    file.write(thisVertex)
+                    for v in me.vertices:
+                        thisVertex = struct.pack('<fff', float(v.co[0]),
+                                                 float(v.co[1]),
+                                                 float(v.co[2]))
+                        file.write(thisVertex)
 
-            if apply_modifiers:
-                ob.evaluated_get(depsgraph).to_mesh_clear()
-            else:
-                me = ob.to_mesh_clear()
+                if apply_modifiers:
+                    ob.evaluated_get(depsgraph).to_mesh_clear()
+                else:
+                    me = ob.to_mesh_clear()
 
-            file.flush()
-            file.close()
-            return True
+                file.flush()
+                file.close()
+                return True
 
 
 class OscPc2ExporterBatch(bpy.types.Operator):
