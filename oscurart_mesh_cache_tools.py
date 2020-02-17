@@ -243,10 +243,11 @@ class CreaPropiedades(bpy.types.Operator):
 
     def execute(self, context):
         for col in bpy.data.collections:
-            if col.library is not None:
-                i = bpy.context.scene.pc_auto_load_proxy.add()
-                i.name = col.name
-                i.use_auto_load = False
+            if col.name not in bpy.context.scene.pc_auto_load_proxy:
+                if col.library is not None:
+                    i = bpy.context.scene.pc_auto_load_proxy.add()
+                    i.name = col.name
+                    i.use_auto_load = False
         return {'FINISHED'}    
 
 class RemuevePropiedades(bpy.types.Operator):
