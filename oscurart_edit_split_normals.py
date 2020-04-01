@@ -18,6 +18,16 @@ from bpy.props import FloatProperty
 from mathutils import Vector
 
 # CREA MESH --------------------------------------------------------
+#funcion que esconde vertices pares
+def hidePares(vertA):
+    hv = False
+    for vert in vertA:
+        vert.hide = hv
+        if hv == False:
+            hv = True
+        else:
+            hv = False 
+
 def editmesh_create(self, normalSize, context):
     ob = bpy.context.object.data
     mode = bpy.context.object.mode
@@ -42,6 +52,8 @@ def editmesh_create(self, normalSize, context):
     normalEditMesh.from_pydata(newNormals,newEdges,[])
     bpy.context.collection.objects.link(normalEditObject)
 
+    #escondo los vertices que no son utiles
+    hidePares(normalEditMesh.vertices)
 
 
 class OBJECT_OT_esn_create(Operator):
