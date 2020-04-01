@@ -15,6 +15,7 @@ import bpy
 from mathutils import Vector
 from bpy.types import Operator
 from bpy.props import FloatProperty
+from bpy.props import BoolProperty
 from mathutils import Vector
 
 # CREA MESH --------------------------------------------------------
@@ -28,7 +29,7 @@ def hidePares(vertA):
         else:
             hv = False 
 
-def editmesh_create(self, normalSize, context):
+def editmesh_create(self, normalSize, onlySelected, context):
     ob = bpy.context.object.data
     mode = bpy.context.object.mode
 
@@ -39,13 +40,18 @@ def editmesh_create(self, normalSize, context):
     newNormals = []
     newEdges = []
     ei = 0
+    selVerts = []
+    
     for l in ob.loops:
         i = (l.normal*normalSize) + ob.vertices[l.vertex_index].co     
         newNormals.append(i)
         newNormals.append(ob.vertices[l.vertex_index].co)
-        newEdges.append([ei,ei+1])
-        ei += 2
-
+        newEdges.append([ei,ei+1])        
+        if ob.vertices[l.vertex_index].select == False :
+            selVerts.append(ei)
+            selVerts.append(ei+1) 
+   
+        ei += 2                 
 
     normalEditMesh = bpy.data.meshes.new("normalEditTemp")
     normalEditObject = bpy.data.objects.new("normalEditObject",normalEditMesh)
@@ -54,7 +60,11 @@ def editmesh_create(self, normalSize, context):
 
     #escondo los vertices que no son utiles
     hidePares(normalEditMesh.vertices)
-
+    
+    #escondo los no seleccionados
+    if onlySelected:
+        for vert in selVerts:
+            normalEditObject.data.vertices[vert].hide = True
 
 class OBJECT_OT_esn_create(Operator):
     """Create Mesh Edit Split Normals"""
@@ -72,8 +82,13 @@ class OBJECT_OT_esn_create(Operator):
         default=1.0
         )
 
+    onlySelected: BoolProperty(
+        name="only Selected",
+        default = True
+        )
+
     def execute(self, context):
-        editmesh_create(self, self.normalSize, context)
+        editmesh_create(self, self.normalSize, self.onlySelected, context)
         return {'FINISHED'}
 
 # APLICA EDIT NORMALS -----------------------------------------------------
