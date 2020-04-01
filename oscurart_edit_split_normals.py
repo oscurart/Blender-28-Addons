@@ -42,15 +42,24 @@ def editmesh_create(self, normalSize, onlySelected, context):
     ei = 0
     selVerts = []
     
+    #guardo loops seleccionados
+    selLoops = []    
+    for face in bpy.context.object.data.polygons:
+        if face.select:
+            for l in face.loop_indices:
+                selLoops.append(l)
+        
+    #sumo geometria        
     for l in ob.loops:
         i = (l.normal*normalSize) + ob.vertices[l.vertex_index].co     
         newNormals.append(i)
         newNormals.append(ob.vertices[l.vertex_index].co)
-        newEdges.append([ei,ei+1])        
-        if ob.vertices[l.vertex_index].select == False :
+        newEdges.append([ei,ei+1])   
+        
+        if l.index not in selLoops:
             selVerts.append(ei)
             selVerts.append(ei+1) 
-   
+            
         ei += 2                 
 
     normalEditMesh = bpy.data.meshes.new("normalEditTemp")
