@@ -29,7 +29,7 @@ def hidePares(vertA):
         else:
             hv = False 
 
-def editmesh_create(self, normalSize, onlySelected, context):
+def editmesh_create(self, normalSize, onlySelected, sharp, context):
     ob = bpy.context.object.data
     mode = bpy.context.object.mode
 
@@ -44,11 +44,11 @@ def editmesh_create(self, normalSize, onlySelected, context):
     
     #guardo loops seleccionados
     selLoops = []    
-    for face in bpy.context.object.data.polygons:
+    for face in ob.polygons:
         if face.select:
             for l in face.loop_indices:
                 selLoops.append(l)
-        
+                        
     #sumo geometria        
     for l in ob.loops:
         i = (l.normal*normalSize) + ob.vertices[l.vertex_index].co     
@@ -56,9 +56,14 @@ def editmesh_create(self, normalSize, onlySelected, context):
         newNormals.append(ob.vertices[l.vertex_index].co)
         newEdges.append([ei,ei+1])   
         
-        if l.index not in selLoops:
-            selVerts.append(ei)
-            selVerts.append(ei+1) 
+        if sharp:
+            if l.index not in selLoops:
+                selVerts.append(ei)
+                selVerts.append(ei+1) 
+        else:
+            if ob.vertices[l.vertex_index].select == False :
+                selVerts.append(ei)
+                selVerts.append(ei+1)                     
             
         ei += 2                 
 
@@ -92,12 +97,18 @@ class OBJECT_OT_esn_create(Operator):
         )
 
     onlySelected: BoolProperty(
-        name="only Selected",
+        name="Only Selected",
         default = True
         )
 
+    Sharp: BoolProperty(
+        name="Sharp",
+        default = True
+        )
+
+
     def execute(self, context):
-        editmesh_create(self, self.normalSize, self.onlySelected, context)
+        editmesh_create(self, self.normalSize, self.onlySelected, self.Sharp, context)
         return {'FINISHED'}
 
 # APLICA EDIT NORMALS -----------------------------------------------------
