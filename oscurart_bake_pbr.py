@@ -47,7 +47,8 @@ def setSceneOpts():
         "Transmission":[False],    
         "IOR":[False],          
         "Emission":[True],                  
-        "Normal":[True]                     
+        "Normal":[True],
+        "Alpha":[False],                     
         }   
 
     bpy.context.scene.render.image_settings.file_format = "OPEN_EXR"
@@ -279,7 +280,8 @@ class bakeChannels(bpy.types.PropertyGroup):
     Transmission :  bpy.props.BoolProperty(name="Transmission",default=False)  
     IOR :  bpy.props.BoolProperty(name="IOR",default=False)      
     Emission:  bpy.props.BoolProperty(name="Emission",default=False)          
-    Normal :  bpy.props.BoolProperty(name="Normal",default=False)        
+    Normal :  bpy.props.BoolProperty(name="Normal",default=False)     
+    Alpha : bpy.props.BoolProperty(name="Alpha",default=False)   
     """
     metallic : bpy.props.BoolProperty(name="Metallic",default=False)
     occlusion : bpy.props.BoolProperty(name="Occlusion",default=False)
@@ -338,7 +340,9 @@ class OSCPBR_PT_LayoutDemoPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "Emission")                   
         row = layout.row()
-        row.prop(scene.bake_pbr_channels, "Normal")                                        
+        row.prop(scene.bake_pbr_channels, "Normal")      
+        row = layout.row()
+        row.prop(scene.bake_pbr_channels, "Alpha")                                           
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "sizex")    
         row.prop(scene.bake_pbr_channels, "sizey")   
