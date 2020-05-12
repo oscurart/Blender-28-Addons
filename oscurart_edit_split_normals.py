@@ -32,6 +32,7 @@ def hidePares(vertA):
 def editmesh_create(self, normalSize, onlySelected, sharp, context):
     ob = bpy.context.object.data
     mode = bpy.context.object.mode
+    obMatrix = bpy.context.object.matrix_world.copy()
 
     bpy.ops.object.mode_set(mode="OBJECT")
 
@@ -79,6 +80,8 @@ def editmesh_create(self, normalSize, onlySelected, sharp, context):
     if onlySelected:
         for vert in selVerts:
             normalEditObject.data.vertices[vert].hide = True
+            
+    normalEditObject.matrix_world = obMatrix        
 
 class OBJECT_OT_esn_create(Operator):
     """Create Mesh Edit Split Normals"""
