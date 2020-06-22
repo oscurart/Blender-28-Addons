@@ -58,6 +58,8 @@ class VIEW3D_PT_tools_meshcachetools(bpy.types.Panel):
         row.operator("export_shape.pc2_selection", text="BAKE")
         row = layout.row()
         layout.label(text="Import")
+        row = layout.row()
+        row.operator("scene.pc_auto_search_files", text="Auto Search Files")        
         #row = layout.row()
         #row.operator("object.modifier_mesh_cache_up", text="MC Modifier to Top")
         row = layout.row(align=True)
@@ -236,6 +238,19 @@ class OscMeshCacheUp(bpy.types.Operator):
     
 # AUTO LOAD --------------------------
 
+class SearchFiles(bpy.types.Operator):
+    bl_idname = "scene.pc_auto_search_files"
+    bl_label = "Search pc2 files in the folder"
+    
+    def execute(self, context):
+        pc2Files = os.listdir(bpy.path.abspath(bpy.context.scene.pc_pc2_folder))
+        for coleccion in bpy.context.scene['pc_auto_load_proxy']:
+            for archivo in pc2Files:
+                if coleccion["name"] in archivo:
+                    coleccion["use_auto_load"] = True
+                    
+        return {'FINISHED'} 
+
 
 class CreaPropiedades(bpy.types.Operator):
     bl_idname = "scene.pc_auto_load_proxy_create"
@@ -315,7 +330,8 @@ classes = (OscMeshCacheButtonSet,
     OscPc2ExporterBatch,
     OscMeshCacheUp,
     CreaPropiedades,
-    RemuevePropiedades
+    RemuevePropiedades,
+    SearchFiles
 )
 
 
