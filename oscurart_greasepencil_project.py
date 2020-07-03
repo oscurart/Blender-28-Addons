@@ -100,7 +100,7 @@ class SimpleOperator(bpy.types.Operator):
     def poll(cls, context):
         return context.active_object is not None
 
-    gpAxis = bpy.props.EnumProperty(
+    gpAxis : bpy.props.EnumProperty(
             name="Grease Pencil:",
             description="Grease pencil Along Axis",
             items=(("X", "Along X", "Along X Axis"),
@@ -109,7 +109,7 @@ class SimpleOperator(bpy.types.Operator):
             default="Z",
             )
 
-    Axis = bpy.props.EnumProperty(
+    Axis : bpy.props.EnumProperty(
             name="Vertices Axis:",
             description="Select axis for project vertices",
             items=(("X", "Along X", "Along X Axis"),
