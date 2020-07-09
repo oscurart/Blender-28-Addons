@@ -313,12 +313,18 @@ def CargaAutoLoadPC(dummy):
                 ob.matrix_world = zeroMat
                 for mod in ob.modifiers:
                     if mod.type == "MESH_CACHE":
-                        mod.cache_format = "PC2"
-                        mod.forward_axis = "POS_Y"
-                        mod.up_axis = "POS_Z"
-                        mod.flip_axis = set(())
-                        mod.frame_start = bpy.context.scene.frame_start
-                        mod.filepath = "%s/%s_%s.pc2" % (bpy.path.abspath(folderpath),col.name,ob.name)
+                        pc2Path = "%s/%s_%s.pc2" % (bpy.path.abspath(folderpath),col.name,ob.name)
+                        if os.path.exists(pc2Path):
+                            mod.cache_format = "PC2"
+                            mod.forward_axis = "POS_Y"
+                            mod.up_axis = "POS_Z"
+                            mod.flip_axis = set(())
+                            mod.frame_start = bpy.context.scene.frame_start
+                            mod.filepath = pc2Path
+                        else:
+                            print("Pc2 Error: %s is missing" % (ob.name) )  
+                            mod.show_viewport = False
+                            mod.show_render = False  
 
 
 bpy.app.handlers.load_post.append(CargaAutoLoadPC)
