@@ -161,7 +161,7 @@ def restauraSlots(selObject):
 
 #__________________________________________________________________________________   
     
-def bake(map,frame):   
+def bake(map):   
     #time
     start_time = datetime.now() 
         
@@ -175,9 +175,9 @@ def bake(map,frame):
     img.colorspace_settings.name = 'Linear' 
 
     if not selected_to_active:        
-        img.filepath = "%s/%s_%s%04d.exr" % (imgpath, object.name, map.replace("_",""),frame)
+        img.filepath = "%s/%s_%s.exr" % (imgpath, object.name, map.replace("_",""))
     else:
-        img.filepath = "%s/%s_%s%04d.exr" % (imgpath, object.active_material.name, map.replace("_",""),frame)   
+        img.filepath = "%s/%s_%s.exr" % (imgpath, object.active_material.name, map.replace("_",""))   
       
         
     #cambio todos los slots por el del canal
@@ -235,15 +235,9 @@ def executePbr():
     mergeObjects()
     createTempMats()     
 
-    
     for map in channelsDict.keys():  
         if getattr(bpy.context.scene.bake_pbr_channels,map):
-            if getattr(bpy.context.scene.bake_pbr_channels,"sequence"):
-                for frameNumber in range(bpy.context.scene.frame_start,bpy.context.scene.frame_end+1):
-                    bpy.context.scene.frame_set(frameNumber)
-                    bake(map,frameNumber)
-            else:
-                bake(map,"")  
+            bake(map)  
 
 
     #remuevo materiales copia
@@ -300,7 +294,6 @@ class bakeChannels(bpy.types.PropertyGroup):
     sizex : bpy.props.IntProperty(name="Size x", default= 1024)
     sizey : bpy.props.IntProperty(name="Size y", default= 1024)
     seltoact : bpy.props.BoolProperty(name="Selected to active", default= True)
-    sequence : bpy.props.BoolProperty(name="Render sequence", default= False)
 
 bpy.utils.register_class(bakeChannels)
 
@@ -354,9 +347,7 @@ class OSCPBR_PT_LayoutDemoPanel(bpy.types.Panel):
         row.prop(scene.bake_pbr_channels, "sizex")    
         row.prop(scene.bake_pbr_channels, "sizey")   
         row = layout.row()
-        row.prop(scene.bake_pbr_channels, "seltoact")    
-        row = layout.row()
-        row.prop(scene.bake_pbr_channels, "sequence")          
+        row.prop(scene.bake_pbr_channels, "seltoact")     
         # Big render button
         row = layout.row()
         row.scale_y = 2
