@@ -22,6 +22,16 @@ def folderCheck():
     if not os.path.exists(imagesFile):
         os.mkdir(imagesFile)
 
+def setExr():
+    bpy.context.scene.render.image_settings.file_format = "OPEN_EXR"
+    bpy.context.scene.render.image_settings.color_mode = "RGBA"
+    bpy.context.scene.render.image_settings.exr_codec = "ZIP"
+    bpy.context.scene.render.image_settings.color_depth = "16"    
+    
+def setPng():
+    bpy.context.scene.render.image_settings.file_format = "PNG"   
+    bpy.context.scene.render.image_settings.color_mode = "RGBA"
+    bpy.context.scene.render.image_settings.color_depth = "8"       
 
 def setSceneOpts():
     global channels
@@ -33,6 +43,7 @@ def setSceneOpts():
     # VARIABLES
     sizex = bpy.context.scene.bake_pbr_channels.sizex
     sizey = bpy.context.scene.bake_pbr_channels.sizey
+    pngCopy = bpy.context.scene.bake_pbr_channels.use_pngcopy
     selected_to_active = bpy.context.scene.bake_pbr_channels.seltoact
 
     channelsDict = {
@@ -50,10 +61,7 @@ def setSceneOpts():
         "Alpha": [False],
     }
 
-    bpy.context.scene.render.image_settings.file_format = "OPEN_EXR"
-    bpy.context.scene.render.image_settings.color_mode = "RGBA"
-    bpy.context.scene.render.image_settings.exr_codec = "ZIP"
-    bpy.context.scene.render.image_settings.color_depth = "16"
+    setExr() #set exr format
 
     # set bake options
     #bpy.context.scene.render.bake_type = "TEXTURE"
@@ -239,6 +247,20 @@ def bake(map, frame):
     else:
         bpy.ops.object.bake(type="NORMAL")
     img.save_render(img.filepath)
+    
+    # save png copy
+    if bpy.context.scene.bake_pbr_channels.use_pngcopy:
+        setPng()    
+        oimg = bpy.data.images.load(img.filepath)    
+        if oimg.filepath.count("Color."):
+            oimg.colorspace_settings.name="Linear"
+        else:
+            oimg.colorspace_settings.name="sRGB OETF"          
+        oimg.save_render(oimg.filepath.replace("exr","png")) #save png   
+        bpy.data.images.remove(oimg)     
+        setExr()
+        
+    #clearimage
     bpy.data.images.remove(img)
     print("%s Done!" % (map))
 
@@ -336,6 +358,7 @@ class bakeChannels(bpy.types.PropertyGroup):
     sizex: bpy.props.IntProperty(name="Size x", default=1024)
     sizey: bpy.props.IntProperty(name="Size y", default=1024)
     seltoact: bpy.props.BoolProperty(name="Selected to active", default=True)
+    use_pngcopy: bpy.props.BoolProperty(name="Get a png copy", default=True)    
     sequence: bpy.props.BoolProperty(name="Render sequence", default=False)
 
 
@@ -392,6 +415,8 @@ class OSCPBR_PT_LayoutDemoPanel(bpy.types.Panel):
         row.prop(scene.bake_pbr_channels, "sizey")
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "seltoact")
+        row = layout.row()
+        row.prop(scene.bake_pbr_channels, "use_pngcopy")        
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "sequence")
         # Big render button
