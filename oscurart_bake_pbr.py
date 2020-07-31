@@ -255,7 +255,10 @@ def bake(map, frame):
         if oimg.filepath.count("Color."):
             oimg.colorspace_settings.name="Linear"
         else:
-            oimg.colorspace_settings.name="sRGB OETF"          
+            try:
+                oimg.colorspace_settings.name="sRGB OETF"#TroyLuts  
+            except:
+                oimg.colorspace_settings.name="sRGB"#OfficialLuts           
         oimg.save_render(oimg.filepath.replace("exr","png")) #save png   
         bpy.data.images.remove(oimg)     
         setExr()
