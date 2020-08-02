@@ -258,8 +258,19 @@ def bake(map, frame):
             try:
                 oimg.colorspace_settings.name="sRGB OETF"#TroyLuts  
             except:
-                oimg.colorspace_settings.name="sRGB"#OfficialLuts           
-        oimg.save_render(oimg.filepath.replace("exr","png")) #save png   
+                oimg.colorspace_settings.name="sRGB"#OfficialLuts        
+        vt=bpy.context.scene.view_settings.view_transform #save viewtransform
+        vLook=bpy.context.scene.view_settings.look
+        try:
+            bpy.context.scene.view_settings.view_transform = "sRGB OETF"#TroyLuts 
+        except:
+            bpy.context.scene.view_settings.view_transform = "Standard"  #OfficialLuts   
+        bpy.context.scene.view_settings.look="None"                 
+        oimg.save_render(oimg.filepath.replace("exr","png")) #save png  
+        #restore color management
+        bpy.context.scene.view_settings.view_transform = vt
+        bpy.context.scene.view_settings.look = vLook 
+        #cleanup
         bpy.data.images.remove(oimg)     
         setExr()
         
