@@ -39,7 +39,7 @@ def DefOscOverlapUv(self,offset,rotate):
     bm = bmesh.from_edit_mesh(me)
     bm.faces.ensure_lookup_table()
     faces = [face for face in bm.faces if face.select]
-    uv_layer = bm.loops.layers.uv[bpy.context.object.data.uv_layers.active.name]
+    uv_layer = bm.loops.layers.uv.active
 
     faceDict = {}
     faceReverse = []
@@ -51,11 +51,9 @@ def DefOscOverlapUv(self,offset,rotate):
         faceDict[face.index] = [mirrorface for mirrorface in bm.faces if mirrorface.select][0].index
         faceReverse.append([mirrorface for mirrorface in bm.faces if mirrorface.select][0])
 
-
-
     for selFace,mirrorFace in faceDict.items():
         for loop,mirrorLoop in zip(bm.faces[selFace].loops,bm.faces[mirrorFace].loops):
-            mirrorLoop.copy_from(loop)
+            mirrorLoop = loop
         if offset:
             for loop,mirrorLoop in zip(bm.faces[selFace].loops,bm.faces[mirrorFace].loops):
                 mirrorLoop[uv_layer].uv += Vector((1,0))
