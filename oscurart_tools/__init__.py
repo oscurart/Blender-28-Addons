@@ -146,7 +146,7 @@ classes = (
     overlap_uvs.CopyUvIsland,
     overlap_uvs.PasteUvIsland,
     distribute.DistributeOsc,
-    selection.OSSELECTION_HT_OscSelection,
+    selection.OSSELECTION_PT_OscSelection,
     save_incremental.saveIncrementalBackup,
     collect_images.collectImagesOsc,
     overlap_island.OscOverlapUv,

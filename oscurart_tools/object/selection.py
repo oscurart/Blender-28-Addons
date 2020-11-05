@@ -48,16 +48,19 @@ def select_osc():
                         bpy.selection_osc.remove(it)
 
 
-class OSSELECTION_HT_OscSelection(bpy.types.Header):
-    bl_label = "Selection Osc"
+class OSSELECTION_PT_OscSelection(bpy.types.Panel):
+    bl_label = "Oscurart Tools"
     bl_space_type = "VIEW_3D"
-
-    def __init__(self):
-        select_osc()
+    bl_region_type ='UI'
+    bl_category = 'Tool'
+    bl_options = {'DEFAULT_CLOSED'} 
 
     def draw(self, context):
-        """
+        select_osc()
         layout = self.layout
         row = layout.row()
-        row.label(text="Sels: "+str(len(bpy.selection_osc)))
-        """
+        row.label(text="SelectionOrder: "+str([ob.name for ob in bpy.selection_osc])[1:][:-1])
+        row = layout.row()
+        row.operator("object.distribute_osc")          
+        
+
