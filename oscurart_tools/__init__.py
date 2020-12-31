@@ -43,6 +43,7 @@ from oscurart_tools.mesh import select_doubles
 from oscurart_tools.mesh import shapes_to_objects
 from oscurart_tools.mesh import remove_modifiers
 from oscurart_tools.mesh import vertex_color_id
+from oscurart_tools.mesh import distribute_mesh
 from oscurart_tools.object import distribute
 from oscurart_tools.object import selection
 from oscurart_tools.object import search_and_select
@@ -120,6 +121,7 @@ class VIEW3D_MT_object_oscurarttools(Menu):
 
         layout.operator("mesh.vertex_color_mask")
         layout.operator("object.distribute_osc")
+        layout.operator("object.distributemesh_osc")
         layout.operator("mesh.remove_modifiers")
         layout.operator("object.search_and_select_osc")
         layout.operator("object.shape_key_to_objects_osc")
@@ -146,6 +148,7 @@ classes = (
     overlap_uvs.CopyUvIsland,
     overlap_uvs.PasteUvIsland,
     distribute.DistributeOsc,
+    distribute_mesh.DistributeMeshOsc,
     selection.OSSELECTION_PT_OscSelection,
     save_incremental.saveIncrementalBackup,
     collect_images.collectImagesOsc,

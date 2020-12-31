@@ -61,6 +61,8 @@ class OSSELECTION_PT_OscSelection(bpy.types.Panel):
         row = layout.row()
         row.label(text="SelectionOrder: "+str([ob.name for ob in bpy.selection_osc])[1:][:-1])
         row = layout.row()
-        row.operator("object.distribute_osc")          
+        row.operator("object.distribute_osc")   
+        row = layout.row()
+        row.operator("object.distributemesh_osc")        
         
 
