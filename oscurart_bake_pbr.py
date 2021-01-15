@@ -252,7 +252,7 @@ def bake(map, frame):
     if bpy.context.scene.bake_pbr_channels.use_pngcopy:
         setPng()    
         oimg = bpy.data.images.load(img.filepath)    
-        if "Color." in oimg.filepath:
+        if  any(ColorChan in oimg.filepath for ColorChan in ["Color","Emission"]) :
             oimg.colorspace_settings.name="Linear"
         else:
             try:
