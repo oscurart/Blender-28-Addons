@@ -20,6 +20,18 @@
 #www.oscurart.com.ar
 #Eugenio Pignataro (oscurart)
 
+bl_info = {
+    "name": "Add Braid",
+    "author": "Eugenio Pignataro (Oscurart)",
+    "version": (1, 0),
+    "blender": (2, 93, 0),
+    "location": "View3D > Add > Curve > Braid",
+    "description": "Adds a Curve Braid",
+    "warning": "",
+    "doc_url": "",
+    "category": "Add Curve",
+}
+
 import bpy
 from bpy.types import Operator
 from bpy.props import IntProperty
@@ -65,7 +77,7 @@ def BraidGen(a,length,diam,depth):
     mod.count = 3
     mod.constant_offset_displace[0] = 2*diam
 
-class BraidGenOsc(bpy.types.Operator):
+class OBJECT_OT_BraidGenOsc(bpy.types.Operator):
     """Create a Curve Braid"""
     bl_idname = "curve.braid"
     bl_label = "Create Curve Braid"
@@ -79,6 +91,24 @@ class BraidGenOsc(bpy.types.Operator):
         return {'FINISHED'}
 
 
-bpy.utils.register_class(BraidGenOsc)
+# Registration
+
+def add_object_button(self, context):
+    self.layout.operator(
+        OBJECT_OT_BraidGenOsc.bl_idname,
+        text="Braid",
+        icon='PLUGIN')
 
 
+def register():
+    bpy.utils.register_class(OBJECT_OT_BraidGenOsc)
+    bpy.types.VIEW3D_MT_curve_add.append(add_object_button)
+
+
+def unregister():
+    bpy.utils.unregister_class(OBJECT_OT_esn_create)
+    bpy.types.VIEW3D_MT_curve_add.remove(add_object_button)
+
+
+if __name__ == "__main__":
+    register()
