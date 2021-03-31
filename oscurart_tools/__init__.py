@@ -47,12 +47,14 @@ from oscurart_tools.mesh import distribute_mesh
 from oscurart_tools.object import distribute
 from oscurart_tools.object import selection
 from oscurart_tools.object import search_and_select
+from oscurart_tools.object import delta_to_global
 from oscurart_tools.mesh import apply_linked_meshes
 from oscurart_tools.render import render_tokens
 from oscurart_tools.render import batch_maker
 from oscurart_tools.render import material_overrides
 from oscurart_tools.mesh import flipped_uvs
 from oscurart_tools.mesh import print_uv_stats
+
 
 from bpy.types import (
         AddonPreferences,
@@ -126,6 +128,7 @@ class VIEW3D_MT_object_oscurarttools(Menu):
         layout.operator("object.search_and_select_osc")
         layout.operator("object.shape_key_to_objects_osc")
         layout.operator("mesh.apply_linked_meshes")
+        layout.operator("object.delta_to_global")
         layout.operator("mesh.print_uv_stats")
         layout.separator()
         layout.operator("image.reload_images_osc")
@@ -168,7 +171,8 @@ classes = (
     material_overrides.OscOverridesDown,
     material_overrides.OscOverridesKill,
     flipped_uvs.selectFlippedUvs,
-    print_uv_stats.uvStats
+    print_uv_stats.uvStats,
+    delta_to_global.DeltaToGlobalOt
     )
 
 def register():
