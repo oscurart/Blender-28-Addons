@@ -363,6 +363,8 @@ def unregister():
     from bpy.utils import unregister_class
     for cls in reversed(classes):
         unregister_class(cls)
+        
+    bpy.utils.unregister_class(OscurartMeshCacheSceneAutoLoad)	        
 
 if __name__ == "__main__":
     register()
