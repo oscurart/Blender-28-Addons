@@ -49,6 +49,8 @@ class VIEW3D_PT_tools_meshcachetools(bpy.types.Panel):
         # Big render button
         #layout.label(text="Bake:")
         row = layout.row()        
+        row.prop(scene, "pc_pc2_applyGenMods", text="Apply Gen Modifiers")        
+        row = layout.row()        
         row.prop(scene, "pc_pc2_applyMods", text="Apply Modifiers")
         row = layout.row() 
         row.prop(scene, "pc_pc2_world_space", text="World Space")
@@ -123,6 +125,8 @@ def do_export(context, props):
             if ob.type == "MESH": 
                 if bpy.context.scene.pc_pc2_exclude not in ob.name:
                     if not ob.hide_viewport:
+                        if bpy.context.scene.pc_pc2_applyGenMods == False:
+                            OscRemoveGenModifiers(ob,False)
                         filepath= "%s/%s_%s.pc2" % (bpy.path.abspath(folderpath), collOb.instance_collection.name,ob.name)
                         mat_x90 = mathutils.Matrix.Rotation(-math.pi/2, 4, 'X')
                         sc = bpy.context.scene
@@ -135,7 +139,7 @@ def do_export(context, props):
                             depsgraph = bpy.context.evaluated_depsgraph_get()
                             me = ob.evaluated_get(depsgraph).to_mesh()
                         else:
-                            me = ob.to_mesh()
+                            me = ob.to_mesh()                       
                         vertCount = len(me.vertices)
                         sampletimes = get_sampled_frames(start, end, sampling)
                         sampleCount = len(sampletimes)
@@ -351,7 +355,8 @@ def register():
     Scene.pc_pc2_exclude = bpy.props.StringProperty(default="*")
     Scene.pc_pc2_world_space = bpy.props.BoolProperty(default=True, name="World Space")
     Scene.pc_pc2_apply_collection_matrix = bpy.props.BoolProperty(default=True, name="Collection Matrix")
-    Scene.pc_pc2_applyMods = bpy.props.BoolProperty(default=True, name="FreezeGenModifiers")
+    Scene.pc_pc2_applyGenMods = bpy.props.BoolProperty(default=True, name="ApplyGenModifiers")
+    Scene.pc_pc2_applyMods = bpy.props.BoolProperty(default=True, name="ApplyModifiers")
     bpy.utils.register_class(OscurartMeshCacheSceneAutoLoad)
     Scene.pc_auto_load_proxy = bpy.props.CollectionProperty(
                                             type=OscurartMeshCacheSceneAutoLoad
