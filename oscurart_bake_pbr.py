@@ -4,7 +4,7 @@ import bpy
 bl_info = {
     "name": "Bake PBR",
     "author": "Eugenio Pignataro (Oscurart)",
-    "version": (1, 0),
+    "version": (1, 1),
     "blender": (2, 80, 0),
     "location": "Render > Bake PBR",
     "description": "Bake PBR maps",
@@ -51,9 +51,12 @@ def setSceneOpts():
         "Metallic": [False],
         "Roughness": [False],
         "Specular": [False],
+        "Specular_Tint": [False],
         "Subsurface": [False],
         "Subsurface_Color": [True],
         "Subsurface_Radius": [True],
+        "Sheen": [False],
+        "Sheen_Tint": [False],
         "Transmission": [False],
         "IOR": [False],
         "Emission": [True],
@@ -155,7 +158,7 @@ def createTempMats():
                                     inputRGB.outputs[0].default_value = prin.inputs[channel.replace(
                                         "_", " ")].default_value[:] + (1,)
                             else:
-                                rgbValue = prin.inputs[channel].default_value
+                                rgbValue = prin.inputs[channel.replace("_"," ")].default_value
                                 inputRGB.outputs[0].default_value = (
                                     rgbValue, rgbValue, rgbValue, 1)
         # normal
@@ -350,25 +353,19 @@ class bakeChannels(bpy.types.PropertyGroup):
     Metallic: bpy.props.BoolProperty(name="Metallic", default=False)
     Roughness: bpy.props.BoolProperty(name="Roughness", default=False)
     Specular: bpy.props.BoolProperty(name="Specular", default=False)
+    Specular_Tint: bpy.props.BoolProperty(name="Specular Tint", default=False)
     Subsurface: bpy.props.BoolProperty(name="Subsurface", default=False)
     Subsurface_Color: bpy.props.BoolProperty(
         name="Subsurface Color", default=False)
     Subsurface_Radius: bpy.props.BoolProperty(
         name="Subsurface Radius", default=False)
+    Sheen: bpy.props.BoolProperty(name="Sheen", default=False)  
+    Sheen_Tint: bpy.props.BoolProperty(name="Sheen Tint", default=False)    
     Transmission: bpy.props.BoolProperty(name="Transmission", default=False)
     IOR: bpy.props.BoolProperty(name="IOR", default=False)
     Emission: bpy.props.BoolProperty(name="Emission", default=False)
     Normal: bpy.props.BoolProperty(name="Normal", default=False)
     Alpha: bpy.props.BoolProperty(name="Alpha", default=False)
-    """
-    metallic : bpy.props.BoolProperty(name="Metallic",default=False)
-    occlusion : bpy.props.BoolProperty(name="Occlusion",default=False)
-    normal : bpy.props.BoolProperty(name="Normal",default=False)
-    emit : bpy.props.BoolProperty(name="Emit",default=False)
-    roughness : bpy.props.BoolProperty(name="Roughness",default=False)
-    opacity : bpy.props.BoolProperty(name="Opacity",default=False)
-    albedo : bpy.props.BoolProperty(name="Albedo",default=False)
-    """
     sizex: bpy.props.IntProperty(name="Size x", default=1024)
     sizey: bpy.props.IntProperty(name="Size y", default=1024)
     seltoact: bpy.props.BoolProperty(name="Selected to active", default=True)
@@ -409,11 +406,17 @@ class OSCPBR_PT_LayoutDemoPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "Specular")
         row = layout.row()
+        row.prop(scene.bake_pbr_channels, "Specular_Tint")        
+        row = layout.row()
         row.prop(scene.bake_pbr_channels, "Subsurface")
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "Subsurface_Color")
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "Subsurface_Radius")
+        row = layout.row()
+        row.prop(scene.bake_pbr_channels, "Sheen")
+        row = layout.row()
+        row.prop(scene.bake_pbr_channels, "Sheen_Tint")                
         row = layout.row()
         row.prop(scene.bake_pbr_channels, "Transmission")
         row = layout.row()
