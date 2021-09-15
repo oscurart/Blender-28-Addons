@@ -517,7 +517,6 @@ def register():
 def unregister():
     bpy.utils.unregister_class(OSCPBR_PT_LayoutDemoPanel)
     bpy.utils.unregister_class(BakePbr)
-    bpy.utils.unregister_class(OBJECT_OT_add_object)
     bpy.utils.unregister_class(loadPbrMaps)
 
 
