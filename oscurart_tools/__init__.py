@@ -22,7 +22,7 @@ bl_info = {
     "name": "Oscurart Tools",
     "author": "Oscurart",
     "version": (4, 0, 0),
-    "blender": (2, 90, 0),
+    "blender": (3, 00, 0),
     "location": "View3D > Context Menu > Object/Edit Modes",
     "description": "Tools for objects, render, shapes, and files.",
     "warning": "",
@@ -54,6 +54,7 @@ from oscurart_tools.render import batch_maker
 from oscurart_tools.render import material_overrides
 from oscurart_tools.mesh import flipped_uvs
 from oscurart_tools.mesh import print_uv_stats
+from oscurart_tools.mesh import peel_uv
 
 
 from bpy.types import (
@@ -80,6 +81,7 @@ class VIEW3D_MT_edit_mesh_oscurarttools(Menu):
         layout.operator("mesh.uv_island_paste")
         layout.operator("mesh.select_doubles")
         layout.operator("mesh.print_uv_stats")
+        layout.operator("mesh.peel_unwrap")
         layout.separator()
         layout.operator("image.reload_images_osc")
         layout.operator("file.save_incremental_backup")
@@ -102,6 +104,7 @@ class IMAGE_MT_uvs_oscurarttools(Menu):
         layout.operator("mesh.uv_island_paste")
         layout.operator("mesh.overlap_uv_faces")
         layout.operator("mesh.select_flipped_uvs")
+        layout.operator("mesh.peel_unwrap")
         layout.separator()
         layout.operator("image.reload_images_osc")
         layout.operator("file.save_incremental_backup")
@@ -171,6 +174,7 @@ classes = (
     material_overrides.OscOverridesDown,
     material_overrides.OscOverridesKill,
     flipped_uvs.selectFlippedUvs,
+    peel_uv.PeelUnwrap,
     print_uv_stats.uvStats,
     delta_to_global.DeltaToGlobalOt
     )
